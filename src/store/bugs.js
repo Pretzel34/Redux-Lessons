@@ -1,39 +1,52 @@
+import {createSlice} from "@reduxjs/toolkit";
+import {createSelector} from "reselect";
 
-//Action Types
- const BUG_REMOVED = "bugRemoved";
- const BUG_ADDED = 'bugAdded';
- const BUG_RESOLVED = 'bugResolved';
-
-//Action Creators
-export const bugAdded = description => ({
-        type: BUG_ADDED,
-        payload: {
-            description
-        }
-})
-
-export const bugResolved = id => ({
-        type: BUG_RESOLVED,
-        payload: {
-            id: 1
-        }
-})
-
-//Reducer
 let lastId = 0;
 
-export default function reducer(state = [], action) {
-    if (action.type === BUG_ADDED)
-      return [
-          ...state,
-          {
-              id: ++lastId,
-              description: action.payload.description,
-              resolved: false
-          }
-      ];
-      else if (action.type === BUG_REMOVED)
-        return state.filter(bug => bug.id !== action.payload.id)
+const slice = createSlice({
+    name: 'bugs',
+    initialState: [],
+    reducers: {
+        //actions => action handlers
 
-    return state;
-}
+        bugAssignedToUser: (bugs, action) => {
+            const { bugId, userId } = action.payload;
+            const index = bugs.findIndex(bug => bug.id === bugId);
+            bugs[index].userId = userId;
+        },
+
+        bugAdded: (bugs, action) => {
+            bugs.push({
+                id: ++lastId,
+                description: action.payload.description,
+                resolved: false
+            });
+        },
+        bugResolved: (bugs, action) => {
+            const index = bugs.findIndex(bug => bug.id === action.payload.id);
+            bugs[index].resolved = true;
+        }
+    }
+});
+
+export const {bugAdded, bugResolved, bugAssignedToUser} = slice.actions;
+export default slice.reducer;
+
+//Selector
+// export const getUnresolvedBugs = state => 
+//     state.entities.bugs.filter(bug => !bug.resolved);
+
+    //Memoizatiuon
+    //bugs => get unresolved bugs
+export const getUnresolvedBugs = createSelector(
+    state => state.entities.bugs,
+    state => state.entities.projects,
+    bugs => bugs.filter(bug => !bug.resolved)
+);
+
+
+export const getBugsByUser = userId => createSelector(
+    state => state.entities.bugs,
+    bugs => bugs.filter(bug => bug.userId === userId)
+);
+
