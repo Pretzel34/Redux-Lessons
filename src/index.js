@@ -1,19 +1,40 @@
 import configureStore from "./store/configureStore";
+import * as actions from './store/api';
 import { bugAdded, bugResolved, getUnresolvedBugs, bugAssignedToUser, getBugsByUser  } from "./store/bugs";
 import {projectAdded} from "./store/projects";
 import { userAdded } from "./store/users";
 import reducer from "./store/reducer";
+import { loadBugs, resolveBug, assignBugToUser } from "./store/bugs";
+import { addBug } from "./store/bugs";
 
 const store = configureStore();
 
-store.dispatch((dispatch, getState) => {
+// store.dispatch(
+//     actions.apiCallBegan({
+//         url: "/bugs",
+//         onSuccess: "bugsRecieved",
+//     })
+// );
+
+// UI Layer
+store.dispatch(loadBugs());
+
+setTimeout(() => store.dispatch(assignBugToUser(1, 4)), 2000);
+
+// store.dispatch({
+//     type: "apiCallBegan",
+//     payload: {
+//         url: "/bugs",
+//         onSuccess: "bugs/bugsRecieved",
+//         onError: "apiRequestFailed"
+//     }
 
     //Call an API
     //When the promise is resolved => dispatch()
-    dispatch({ type: 'bugsRecieved', bugs: [1,2,3]})
-    console.log(getState());
+    // dispatch({ type: 'bugsRecieved', bugs: [1,2,3]})
+    // console.log(getState());
     // If the promise is rejected => dispatch()
-})
+// });
 
 // store.subscribe(() => {
 //     console.log("Store changed!");
